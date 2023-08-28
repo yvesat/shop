@@ -26,11 +26,12 @@ class _LoginPageState extends ConsumerState<AuthPage> {
 
   late Future<User?> _user;
 
-  final _edtUser = TextEditingController(text: "");
+  final _edtEmail = TextEditingController(text: "");
+  final _edtFullName = TextEditingController(text: "");
   final _edtPassword = TextEditingController(text: "");
-  final _edSecondtPassword = TextEditingController(text: "");
+  final _edtConfirmationPassword = TextEditingController(text: "");
 
-  final AuthMode _authMode = AuthMode.logIn;
+  AuthMode _authMode = AuthMode.logIn;
 
   @override
   void initState() {
@@ -51,8 +52,8 @@ class _LoginPageState extends ConsumerState<AuthPage> {
     return FutureBuilder(
       future: _user,
       builder: (context, snapshot) {
-        if (snapshot.hasData && _edtUser.text.isEmpty && _edtPassword.text.isEmpty) {
-          _edtUser.text = snapshot.data!.user!;
+        if (snapshot.hasData && _edtEmail.text.isEmpty && _edtPassword.text.isEmpty) {
+          _edtEmail.text = snapshot.data!.user!;
           _edtPassword.text = snapshot.data!.password!;
         }
         return Scaffold(
@@ -77,8 +78,21 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                           mainAxisSize: MainAxisSize.max,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            if (_authMode == AuthMode.signUp) LoginTextField(controller: _edtUser, label: "Full name", hide: false, keyboardType: TextInputType.emailAddress, maxLength: 100),
-                            LoginTextField(controller: _edtUser, label: "User", hide: false, keyboardType: TextInputType.emailAddress, maxLength: 100),
+                            if (_authMode == AuthMode.signUp)
+                              LoginTextField(
+                                controller: _edtFullName,
+                                label: "Full name",
+                                hide: false,
+                                keyboardType: TextInputType.name,
+                                maxLength: 100,
+                              ),
+                            LoginTextField(
+                              controller: _edtEmail,
+                              label: "e-mail",
+                              hide: false,
+                              keyboardType: TextInputType.emailAddress,
+                              maxLength: 100,
+                            ),
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               child: Stack(
@@ -88,7 +102,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                     controller: _edtPassword,
                                     label: "Password",
                                     hide: _hidePassword,
-                                    keyboardType: TextInputType.emailAddress,
+                                    keyboardType: TextInputType.visiblePassword,
                                     maxLength: 20,
                                   ),
                                   IconButton(
@@ -100,29 +114,32 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                             ),
                             if (_authMode == AuthMode.signUp)
                               Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.only(bottom: 16),
                                 child: Stack(
                                   alignment: Alignment.centerRight,
                                   children: <Widget>[
                                     LoginTextField(
-                                      controller: _edSecondtPassword,
+                                      controller: _edtConfirmationPassword,
                                       label: "Confirm Password",
                                       hide: _hidePassword,
-                                      keyboardType: TextInputType.emailAddress,
+                                      keyboardType: TextInputType.visiblePassword,
                                       maxLength: 20,
                                     ),
-                                    IconButton(
-                                      icon: Icon(_hidePassword ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash),
-                                      onPressed: () => setState(() => _hidePassword = !_hidePassword),
-                                    )
                                   ],
                                 ),
                               ),
                             Button(
-                              label: "ENTER",
+                              label: _authMode == AuthMode.signUp ? "SIGN UP" : "LOG IN",
                               onTap: () async {
                                 try {
-                                  await loginController.login(context, ref, _edtUser.text, _edtPassword.text);
+                                  _authMode == AuthMode.signUp
+                                      ? await loginController.signUp(context, ref, _edtFullName.text, _edtEmail.text, _edtPassword.text, _edtConfirmationPassword.text)
+                                      : await loginController.login(
+                                          context,
+                                          ref,
+                                          _edtEmail.text,
+                                          _edtPassword.text,
+                                        );
                                 } catch (e) {
                                   alert.snack(context, e.toString());
                                 }
@@ -133,14 +150,22 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                               onPressed: () {},
                               child: const Text("Forgot Password?"),
                             ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _authMode == AuthMode.signUp ? _authMode = AuthMode.logIn : _authMode = AuthMode.signUp;
+                                });
+                              },
+                              child: Text(_authMode == AuthMode.signUp ? "Already have an account? Log in instead." : "Don't have an account? Create one here.", textAlign: TextAlign.center),
+                            ),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                if (loginState.isLoading) Progress(size),
                 Positioned(bottom: 16, right: 16, child: Text("Version: $_version")),
+                if (loginState.isLoading) Progress(size),
               ],
             ),
           ),
