@@ -16,8 +16,8 @@ Future<void> main() async {
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         routerConfig: router,
-        theme: FlexThemeData.light(scheme: FlexScheme.green),
-        darkTheme: FlexThemeData.dark(scheme: FlexScheme.green),
+        theme: FlexThemeData.light(scheme: FlexScheme.brandBlue),
+        darkTheme: FlexThemeData.dark(scheme: FlexScheme.brandBlue),
         themeMode: ThemeMode.system,
       ),
     ),
