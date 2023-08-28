@@ -30,7 +30,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
   final _edtPassword = TextEditingController(text: "");
   final _edSecondtPassword = TextEditingController(text: "");
 
-  AuthMode _authMode = AuthMode.logIn;
+  final AuthMode _authMode = AuthMode.logIn;
 
   @override
   void initState() {
@@ -48,8 +48,6 @@ class _LoginPageState extends ConsumerState<AuthPage> {
     final loginController = ref.read(loginControllerProvider.notifier);
 
     final size = MediaQuery.sizeOf(context);
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool isDarkMode = brightness == Brightness.dark;
     return FutureBuilder(
       future: _user,
       builder: (context, snapshot) {
@@ -69,7 +67,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
-                      Image.asset(isDarkMode ? "assets/images/icon_title_dark.png" : "assets/images/icon_title.png", height: size.height * 0.25),
+                      Image.asset("assets/images/icon_title.png", height: size.height * 0.25),
                       const SizedBox(height: 16),
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 50),
