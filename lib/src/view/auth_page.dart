@@ -53,7 +53,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
       future: _user,
       builder: (context, snapshot) {
         if (snapshot.hasData && _edtEmail.text.isEmpty && _edtPassword.text.isEmpty) {
-          _edtEmail.text = snapshot.data!.user!;
+          _edtEmail.text = snapshot.data!.name!;
           _edtPassword.text = snapshot.data!.password!;
         }
         return Scaffold(
@@ -81,7 +81,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                             if (_authMode == AuthMode.signUp)
                               LoginTextField(
                                 controller: _edtFullName,
-                                label: "Full name",
+                                label: "Full name", //TODO: LANGUAGE
                                 hide: false,
                                 keyboardType: TextInputType.name,
                                 maxLength: 100,
@@ -100,7 +100,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                 children: <Widget>[
                                   LoginTextField(
                                     controller: _edtPassword,
-                                    label: "Password",
+                                    label: "Password", //TODO: LANGUAGE
                                     hide: _hidePassword,
                                     keyboardType: TextInputType.visiblePassword,
                                     maxLength: 20,
@@ -120,7 +120,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                   children: <Widget>[
                                     LoginTextField(
                                       controller: _edtConfirmationPassword,
-                                      label: "Confirm Password",
+                                      label: "Confirm Password", //TODO: LANGUAGE
                                       hide: _hidePassword,
                                       keyboardType: TextInputType.visiblePassword,
                                       maxLength: 20,
@@ -129,7 +129,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                 ),
                               ),
                             Button(
-                              label: _authMode == AuthMode.signUp ? "SIGN UP" : "LOG IN",
+                              label: _authMode == AuthMode.signUp ? "SIGN UP" : "LOG IN", //TODO: LANGUAGE
                               onTap: () async {
                                 try {
                                   _authMode == AuthMode.signUp
@@ -148,7 +148,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                             //TODO: Implementar função
                             TextButton(
                               onPressed: () {},
-                              child: const Text("Forgot Password?"),
+                              child: const Text("Forgot Password?"), //TODO: LANGUAGE
                             ),
                             TextButton(
                               onPressed: () {
@@ -156,7 +156,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                   _authMode == AuthMode.signUp ? _authMode = AuthMode.logIn : _authMode = AuthMode.signUp;
                                 });
                               },
-                              child: Text(_authMode == AuthMode.signUp ? "Already have an account? Log in instead." : "Don't have an account? Create one here.", textAlign: TextAlign.center),
+                              child: Text(_authMode == AuthMode.signUp ? "Already have an account? Log in instead." : "Don't have an account? Create one here.", textAlign: TextAlign.center), //TODO: LANGUAGE
                             ),
                           ],
                         ),
@@ -164,7 +164,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                     ],
                   ),
                 ),
-                Positioned(bottom: 16, right: 16, child: Text("Version: $_version")),
+                Positioned(bottom: 16, right: 16, child: Text("Version: $_version")), //TODO: LANGUAGE
                 if (loginState.isLoading) Progress(size),
               ],
             ),

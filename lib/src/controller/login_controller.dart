@@ -1,11 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../model/custom_exception.dart';
 import '../model/isar_service.dart';
+import '../model/user_model.dart' as local;
 import '../model/user_model.dart';
 
 class LoginController extends StateNotifier<AsyncValue<void>> {
@@ -13,8 +15,7 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
 
   // final UserRepository repositorioUsuario = UserRepository();
   final IsarService isarService = IsarService();
-
-  Future<User?> loadUser() async {
+  Future<local.User?> loadUser() async {
     try {
       state = const AsyncValue.loading();
       return await isarService.getUserDB();
@@ -25,20 +26,26 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
-  Future<void> login(BuildContext context, WidgetRef ref, String? email, String? senha) async {
+  Future<void> login(BuildContext context, WidgetRef ref, String? email, String? password) async {
     try {
-      if (email == null || email.isEmpty) throw CustomException("Invalid e-mail");
-      if (senha == null || senha.isEmpty) throw CustomException("Invalid password");
+      if (email == null || email.isEmpty) throw CustomException("Please enter your e-mail");
+      if (password == null || password.isEmpty) throw CustomException("Please enter a password");
 
       state = const AsyncValue.loading();
+      final userController = ref.read(userProvider.notifier);
 
-      // await repositorioUsuario.logIn(ref, login, senha);
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
 
-      // final userController = ref.read(userProvider.notifier);
-      // final userState = ref.read(userProvider);
+      final token = credential.user!.uid;
+      await userController.saveToken(token);
 
-      // await repositorioUsuario.getToken(ref);
       context.go('/home');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        throw CustomException('No user found for that email');
+      } else if (e.code == 'wrong-password') {
+        throw CustomException('Wrong password provided for that user');
+      }
     } catch (e) {
       rethrow;
     } finally {
@@ -48,26 +55,33 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
 
   Future<void> signUp(BuildContext context, WidgetRef ref, String? fullName, String? email, String? password, String? confirmPassword) async {
     try {
-      if (fullName == null || fullName.isEmpty) throw CustomException("Please enter your full name.");
+      if (fullName == null || fullName.isEmpty) throw CustomException("Please enter your full name");
       if (email == null || email.isEmpty || email.isEmpty) throw CustomException("Please enter your e-mail");
 
       final emailRegExp = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
       if (!emailRegExp.hasMatch(email)) throw CustomException("Invalid e-mail format");
 
-      if (password == null || password.isEmpty) throw CustomException("Please enter a password.");
-      if (password.length < 4) throw CustomException("Password must be at least 4 characters long.");
-      if (confirmPassword == null || confirmPassword.isEmpty) throw CustomException("Please confirm your password.");
-      if (confirmPassword != password) throw CustomException("Passwords do not match.");
+      if (password == null || password.isEmpty) throw CustomException("Please enter a password");
+      if (password.length < 6) throw CustomException("Password must be at least 6 characters long");
+      if (confirmPassword == null || confirmPassword.isEmpty) throw CustomException("Please confirm your password");
+      if (confirmPassword != password) throw CustomException("Passwords do not match");
 
       state = const AsyncValue.loading();
+      final userController = ref.read(userProvider.notifier);
 
-      // await repositorioUsuario.logIn(ref, login, senha);
+      final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+      final token = credential.user!.uid;
 
-      // final userController = ref.read(userProvider.notifier);
-      // final userState = ref.read(userProvider);
+      await userController.createUser(name: fullName, email: email, password: password);
+      await userController.saveToken(token);
 
-      // await repositorioUsuario.getToken(ref);
       context.go('/home');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        throw CustomException('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        throw CustomException('The account already exists for that email.');
+      }
     } catch (e) {
       rethrow;
     } finally {
@@ -77,3 +91,6 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
 }
 
 final loginControllerProvider = StateNotifierProvider<LoginController, AsyncValue<void>>((ref) => LoginController());
+
+
+//TODO: LANGUAGE

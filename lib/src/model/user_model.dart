@@ -7,15 +7,16 @@ part 'user_model.g.dart';
 @collection
 class User {
   Id id = Isar.autoIncrement;
-  String? user;
+  String? name;
   String? password;
   String? email;
   String? userToken;
 
   User({
-    this.user,
+    this.name,
     this.password,
     this.email,
+    this.userToken,
   });
 }
 
@@ -24,16 +25,14 @@ class UserNotifier extends StateNotifier<User> {
 
   final IsarService isarService = IsarService();
 
-  Future<void> createUser({
-    required String login,
-    required String senha,
-  }) async {
+  Future<void> createUser({required String name, required String email, required String password}) async {
     final userExists = await isarService.getUserDB();
 
     if (userExists == null) {
       final user = User(
-        user: login,
-        password: senha,
+        name: name,
+        email: email,
+        password: password,
       );
       state = user;
       await isarService.saveUserDB(state);
@@ -42,8 +41,8 @@ class UserNotifier extends StateNotifier<User> {
     }
   }
 
-  Future<void> saveToken(String token) async {
-    state.userToken = token;
+  Future<void> saveToken(String userToken) async {
+    state.userToken = userToken;
     await isarService.saveUserDB(state);
   }
 

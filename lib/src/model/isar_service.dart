@@ -15,7 +15,7 @@ class IsarService {
     await isar.writeTxn(() => isar.clear());
   }
 
-  //Usuario
+  //User
   Future<User?> getUserDB() async {
     final isar = await db;
     User? user = await isar.users.where().findFirst();
