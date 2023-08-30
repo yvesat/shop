@@ -3,6 +3,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../controller/home_controller.dart';
+import 'widgets/grid_tile_home.dart';
+import 'widgets/products_grid.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -11,6 +13,7 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  var _showOnlyFavorites = false;
   @override
   Widget build(BuildContext context) {
     final homeController = ref.read(homeControllerProvider.notifier);
@@ -28,10 +31,10 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8),
-        child: GridView(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1 / 1),
-        ),
+        child: ProductsGrid(_showOnlyFavorites),
       ),
     );
   }
 }
+
+//TODO: LANGUAGE
