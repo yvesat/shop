@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shop/src/view/widgets/search_bar.dart';
 
 import '../controller/home_controller.dart';
-import 'widgets/grid_tile_home.dart';
+import '../controller/products_controller.dart';
 import 'widgets/products_grid.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -13,12 +15,15 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  var _showOnlyFavorites = false;
+  final TextEditingController controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final homeController = ref.read(homeControllerProvider.notifier);
+    final productsController = ref.read(productsControllerProvider.notifier);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: IconButton(
           color: Theme.of(context).colorScheme.secondary,
@@ -27,14 +32,40 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
         centerTitle: true,
         title: const Text("Shop"),
-        // actions: [],
+        actions: [
+          IconButton(
+            color: Theme.of(context).colorScheme.secondary,
+            onPressed: () => context.go('/cart'),
+            icon: const FaIcon(FontAwesomeIcons.cartShopping),
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: ProductsGrid(_showOnlyFavorites),
+      body: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: ProductsGrid(),
       ),
+
+      // body: Padding(
+      //   padding: const EdgeInsets.all(16.0),
+      //   child: Column(
+      //     children: [
+      //       Padding(
+      //         padding: const EdgeInsets.only(bottom: 16),
+      //         child: CustomSearchBar(
+      //           controller: controller,
+      //           onChanged: (value) {
+      //             // productsController.filterProducts(ref, value);
+      //           },
+      //         ),
+      //       ),
+      //       const ProductsGrid(),
+      //     ],
+      //   ),
+      // ),
     );
   }
 }
 
+
 //TODO: LANGUAGE
+//TODO: CORRIGIR ERRO DE PARENT WIDGET

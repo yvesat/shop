@@ -7,13 +7,11 @@ part 'user_model.g.dart';
 @collection
 class User {
   Id id = Isar.autoIncrement;
-  String? name;
   String? password;
   String? email;
   String? userToken;
 
   User({
-    this.name,
     this.password,
     this.email,
     this.userToken,
@@ -25,28 +23,18 @@ class UserNotifier extends StateNotifier<User> {
 
   final IsarService isarService = IsarService();
 
-  Future<void> createUser({required String name, required String email, required String password}) async {
-    final userExists = await isarService.getUserDB();
+  Future<void> saveUser({required String email, required String password, required String userToken}) async {
+    isarService.clearUserDB();
+    final user = User(email: email, password: password, userToken: userToken);
 
-    if (userExists == null) {
-      final user = User(
-        name: name,
-        email: email,
-        password: password,
-      );
-      state = user;
-      await isarService.saveUserDB(state);
-    } else {
-      state = userExists;
-    }
-  }
+    state = user;
 
-  Future<void> saveToken(String userToken) async {
-    state.userToken = userToken;
     await isarService.saveUserDB(state);
   }
 
-  User getUser() => state;
+  Future<User?> getUser() async {
+    return await isarService.getUserDB();
+  }
 }
 
 final userProvider = StateNotifierProvider<UserNotifier, User>((ref) => UserNotifier());

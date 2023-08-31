@@ -27,7 +27,6 @@ class _LoginPageState extends ConsumerState<AuthPage> {
   late Future<User?> _user;
 
   final _edtEmail = TextEditingController(text: "");
-  final _edtFullName = TextEditingController(text: "");
   final _edtPassword = TextEditingController(text: "");
   final _edtConfirmationPassword = TextEditingController(text: "");
 
@@ -53,8 +52,8 @@ class _LoginPageState extends ConsumerState<AuthPage> {
       future: _user,
       builder: (context, snapshot) {
         if (snapshot.hasData && _edtEmail.text.isEmpty && _edtPassword.text.isEmpty) {
-          _edtEmail.text = snapshot.data!.name!;
-          _edtPassword.text = snapshot.data!.password!;
+          _edtEmail.text = snapshot.data!.email ?? "";
+          _edtPassword.text = snapshot.data!.password ?? "";
         }
         return Scaffold(
           resizeToAvoidBottomInset: false,
@@ -78,14 +77,6 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                           mainAxisSize: MainAxisSize.max,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
-                            if (_authMode == AuthMode.signUp)
-                              LoginTextField(
-                                controller: _edtFullName,
-                                label: "Full name", //TODO: LANGUAGE
-                                hide: false,
-                                keyboardType: TextInputType.name,
-                                maxLength: 100,
-                              ),
                             LoginTextField(
                               controller: _edtEmail,
                               label: "e-mail",
@@ -133,7 +124,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                               onTap: () async {
                                 try {
                                   _authMode == AuthMode.signUp
-                                      ? await loginController.signUp(context, ref, _edtFullName.text, _edtEmail.text, _edtPassword.text, _edtConfirmationPassword.text)
+                                      ? await loginController.signUp(context, ref, _edtEmail.text, _edtPassword.text, _edtConfirmationPassword.text)
                                       : await loginController.login(
                                           context,
                                           ref,

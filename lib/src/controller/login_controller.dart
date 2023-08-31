@@ -9,6 +9,7 @@ import '../model/custom_exception.dart';
 import '../model/isar_service.dart';
 import '../model/user_model.dart' as local;
 import '../model/user_model.dart';
+import 'products_controller.dart';
 
 class LoginController extends StateNotifier<AsyncValue<void>> {
   LoginController() : super(const AsyncValue.data(null));
@@ -37,9 +38,10 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
 
       final token = credential.user!.uid;
-      await userController.saveToken(token);
 
-      context.go('/home');
+      await userController.saveUser(email: email, password: password, userToken: token);
+
+      await loadProductGoHome(context, ref);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw CustomException('No user found for that email');
@@ -53,9 +55,8 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
-  Future<void> signUp(BuildContext context, WidgetRef ref, String? fullName, String? email, String? password, String? confirmPassword) async {
+  Future<void> signUp(BuildContext context, WidgetRef ref, String? email, String? password, String? confirmPassword) async {
     try {
-      if (fullName == null || fullName.isEmpty) throw CustomException("Please enter your full name");
       if (email == null || email.isEmpty || email.isEmpty) throw CustomException("Please enter your e-mail");
 
       final emailRegExp = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
@@ -72,10 +73,9 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
       final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       final token = credential.user!.uid;
 
-      await userController.createUser(name: fullName, email: email, password: password);
-      await userController.saveToken(token);
+      await userController.saveUser(email: email, password: password, userToken: token);
 
-      context.go('/home');
+      await loadProductGoHome(context, ref);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw CustomException('The password provided is too weak.');
@@ -87,6 +87,11 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
     } finally {
       state = const AsyncValue.data(null);
     }
+  }
+
+  Future<void> loadProductGoHome(BuildContext context, WidgetRef ref) async {
+    await ref.read(productsControllerProvider.notifier).loadProducts(ref);
+    context.go('/home');
   }
 }
 
