@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shop/src/model/product_model.dart';
-
-import '../../controller/products_controller.dart';
+import '../../model/filtered_products_model.dart';
 import 'product_item.dart';
 
 class ProductsGrid extends HookConsumerWidget {
@@ -10,8 +8,8 @@ class ProductsGrid extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(productsControllerProvider);
-    final productList = ref.watch(productsControllerProvider.notifier).getProductList(ref);
+    ref.watch(filteredProductsProvider);
+    final productList = ref.watch(filteredProductsProvider.notifier).filterdProductsList();
 
     return GridView.builder(
       shrinkWrap: true,
@@ -26,5 +24,3 @@ class ProductsGrid extends HookConsumerWidget {
     );
   }
 }
-
-//TODO: CORRIGIR ERRO DE PARENT WIDGET

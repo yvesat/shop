@@ -24,7 +24,6 @@ class IsarService {
 
   Future<void> saveUserDB(User user) async {
     final isar = await db;
-    // await isar.writeTxnSync(() async => isar.usuarios.putSync(usuario));
     await isar.writeTxn(() async => isar.users.put(user));
   }
 
@@ -39,7 +38,6 @@ class IsarService {
       return await Isar.open(
         directory: dir.path,
         [UserSchema],
-        // [UsuarioSchema, DocSchema, DocLineSchema, LoteSchema],
         inspector: true,
       );
     }

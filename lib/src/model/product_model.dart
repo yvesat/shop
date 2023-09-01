@@ -46,14 +46,13 @@ class ProductNotifier extends StateNotifier<List<Product>> {
     return state.firstWhere((e) => e.id == id);
   }
 
-  List<Product> filteredProductList() {
+  List<Product> productsList() {
     return state;
   }
 
-  // void filterProductList(String query) {
-  //   final list = state.where((product) => product.title.toLowerCase().contains(query.toLowerCase())).toList();
-  //   _filteredProducts = list;
-  // }
+  void clearProductState() {
+    state = [];
+  }
 }
 
 final productProvider = StateNotifierProvider<ProductNotifier, List<Product>>((ref) => ProductNotifier());
