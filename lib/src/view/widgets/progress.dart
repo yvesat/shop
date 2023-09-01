@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class Progress extends StatelessWidget {
   final Size size;
-  final String mensagem;
+  final String message;
 
-  const Progress(this.size, {super.key, this.mensagem = ""});
+  const Progress(this.size, {super.key, this.message = ""});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class Progress extends StatelessWidget {
               child: DefaultTextStyle(
                 style: const TextStyle(),
                 child: Text(
-                  mensagem,
+                  message,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
                   textAlign: TextAlign.center,
                 ),

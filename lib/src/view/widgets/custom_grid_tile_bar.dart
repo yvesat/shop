@@ -70,6 +70,3 @@ class CustomGridTileBar extends StatelessWidget {
     );
   }
 }
-
-
-//TODO: REVISAR
