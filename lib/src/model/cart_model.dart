@@ -1,47 +1,53 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shop/src/model/product_model.dart';
+import 'package:shop/src/model/cart_item_model.dart';
+
+import 'product_model.dart';
 
 class Cart {
   String id = "";
   double amount;
-  List<Product> productList = [];
+  List<CartItem> cartItemList = [];
 
-  Cart({required this.amount, required this.productList});
+  Cart({required this.amount, required this.cartItemList});
 }
 
-class CartNotifier extends StateNotifier<Cart?> {
-  CartNotifier() : super(Cart(amount: 0.0, productList: []));
+class CartNotifier extends StateNotifier<Cart> {
+  CartNotifier() : super(Cart(amount: 0.0, cartItemList: []));
 
   void createCart() {
-    // double amount = 0.0;
-    // if (productList.isNotEmpty) {
-    //   for (Product product in productList) {
-    //     amount += product.price;
-    //   }
-    // }
     final newCart = Cart(
       amount: 0.0,
-      productList: [],
+      cartItemList: [],
     );
 
     state = newCart;
   }
 
-  List<Product> cartItems() {
-    return state!.productList;
+  List<CartItem> cartItems() {
+    return state.cartItemList;
   }
 
   void addProduct(Product product) {
-    state!.productList.add(product);
-    state!.amount += product.price;
+    final bool productIsInCart = state.cartItemList.any((cartItem) => cartItem.product.id == product.id);
+
+    if (productIsInCart) {
+      final itemInCart = state.cartItemList.firstWhere((cartItem) => cartItem.product.id == product.id);
+      itemInCart.quantity++;
+      itemInCart.totalPrice += product.price;
+      state.amount += product.price;
+    } else {
+      final newCartItem = CartItem(
+        id: product.id,
+        product: product,
+        totalPrice: product.price,
+        quantity: 1,
+      );
+      state.cartItemList.add(newCartItem);
+      state.amount += newCartItem.totalPrice;
+    }
   }
 
-  // void removeProduct(String cartId, String productId) {
-  //   final cart = state.firstWhere((cart) => cart.id == cartId);
-
-  //   final product = cart.productList.firstWhere((product) => product.id == productId);
-  //   cart.productList.removeWhere((product) => product.id == productId);
-  // }
+  void removeProduct(Product product) {}
 }
 
-final cartProvider = StateNotifierProvider<CartNotifier, Cart?>((ref) => CartNotifier());
+final cartProvider = StateNotifierProvider<CartNotifier, Cart>((ref) => CartNotifier());
