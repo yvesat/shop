@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:package_info/package_info.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../controller/login_controller.dart';
-import '../model/enums/auth_mode.dart';
-import '../model/user_model.dart';
-import 'widgets/button.dart';
-import 'widgets/login_text_field.dart';
-import 'widgets/progress.dart';
-import 'widgets/alert.dart';
+import '../../controller/login_controller.dart';
+import '../../model/enums/auth_mode.dart';
+import '../../model/user_model.dart';
+import '../widgets/button.dart';
+import '../widgets/login_text_field.dart';
+import '../widgets/progress.dart';
+import '../widgets/alert.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -79,7 +80,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                           children: <Widget>[
                             LoginTextField(
                               controller: _edtEmail,
-                              label: "e-mail",
+                              label: AppLocalizations.of(context)!.email,
                               hide: false,
                               keyboardType: TextInputType.emailAddress,
                               maxLength: 100,
@@ -91,7 +92,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                 children: <Widget>[
                                   LoginTextField(
                                     controller: _edtPassword,
-                                    label: "Password", //TODO: LANGUAGE
+                                    label: AppLocalizations.of(context)!.password,
                                     hide: _hidePassword,
                                     keyboardType: TextInputType.visiblePassword,
                                     maxLength: 20,
@@ -111,7 +112,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                   children: <Widget>[
                                     LoginTextField(
                                       controller: _edtConfirmationPassword,
-                                      label: "Confirm Password", //TODO: LANGUAGE
+                                      label: AppLocalizations.of(context)!.confirmPassword,
                                       hide: _hidePassword,
                                       keyboardType: TextInputType.visiblePassword,
                                       maxLength: 20,
@@ -120,7 +121,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                 ),
                               ),
                             Button(
-                              label: _authMode == AuthMode.signUp ? "SIGN UP" : "LOG IN", //TODO: LANGUAGE
+                              label: _authMode == AuthMode.signUp ? AppLocalizations.of(context)!.signUp : AppLocalizations.of(context)!.logIn,
                               onTap: () async {
                                 try {
                                   _authMode == AuthMode.signUp
@@ -136,18 +137,16 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                                 }
                               },
                             ),
-                            //TODO: Implementar função
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text("Forgot Password?"), //TODO: LANGUAGE
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  _authMode == AuthMode.signUp ? _authMode = AuthMode.logIn : _authMode = AuthMode.signUp;
-                                });
-                              },
-                              child: Text(_authMode == AuthMode.signUp ? "Already have an account? Log in instead." : "Don't have an account? Create one here.", textAlign: TextAlign.center), //TODO: LANGUAGE
+                            Padding(
+                              padding: const EdgeInsets.only(top: 32),
+                              child: TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _authMode == AuthMode.signUp ? _authMode = AuthMode.logIn : _authMode = AuthMode.signUp;
+                                  });
+                                },
+                                child: Text(_authMode == AuthMode.signUp ? AppLocalizations.of(context)!.alreadyHaveAccount : AppLocalizations.of(context)!.dontHaveAccount, textAlign: TextAlign.center),
+                              ),
                             ),
                           ],
                         ),
@@ -155,7 +154,7 @@ class _LoginPageState extends ConsumerState<AuthPage> {
                     ],
                   ),
                 ),
-                Positioned(bottom: 16, right: 16, child: Text("Version: $_version")), //TODO: LANGUAGE
+                Positioned(bottom: 16, right: 16, child: Text("Version: $_version")),
                 if (loginState.isLoading) Progress(size),
               ],
             ),
