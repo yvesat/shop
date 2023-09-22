@@ -68,7 +68,7 @@ class _HomePageState extends ConsumerState<CartPage> {
                             context,
                             AlertType.warning,
                             AppLocalizations.of(context)!.confirmPlaceOrder,
-                            onPress: () async => await cartController.placeOrder(context),
+                            onPress: () async => await cartController.placeOrder(context, ref),
                           );
                         }
                       : null),
