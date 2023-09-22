@@ -1,21 +1,21 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:shop/src/model/cart_item_model.dart';
 
+import 'cart_item_model.dart';
 import 'product_model.dart';
 
-class Cart {
+class Order {
   String id = "";
   double amount;
   List<CartItem> cartItemList = [];
 
-  Cart({required this.amount, required this.cartItemList});
+  Order({required this.amount, required this.cartItemList});
 }
 
-class CartNotifier extends StateNotifier<Cart> {
-  CartNotifier() : super(Cart(amount: 0.0, cartItemList: []));
+class OrderNotifier extends StateNotifier<Order> {
+  OrderNotifier() : super(Order(amount: 0.0, cartItemList: []));
 
   void createCart() {
-    final newCart = Cart(
+    final newCart = Order(
       amount: 0.0,
       cartItemList: [],
     );
@@ -47,7 +47,25 @@ class CartNotifier extends StateNotifier<Cart> {
     }
   }
 
+  Map<String, dynamic> orderToMap() {
+    List<Map<String, dynamic>> productsList = [];
+
+    for (CartItem cartItem in state.cartItemList) {
+      final Map<String, dynamic> product = {
+        "id": cartItem.id,
+        "totalPrice": cartItem.totalPrice,
+        "quantity": cartItem.quantity,
+      };
+
+      productsList.add(product);
+    }
+    return {
+      "amount": state.amount,
+      "products": productsList,
+    };
+  }
+
   void removeProduct(Product product) {}
 }
 
-final cartProvider = StateNotifierProvider<CartNotifier, Cart>((ref) => CartNotifier());
+final orderProvider = StateNotifierProvider<OrderNotifier, Order>((ref) => OrderNotifier());
