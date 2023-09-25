@@ -1,10 +1,15 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:isar/isar.dart';
 
 import 'cart_item_model.dart';
 import 'product_model.dart';
 
+part 'order_model.g.dart';
+
+@collection
 class Order {
-  String id = "";
+  Id id = Isar.autoIncrement;
+  String firebaseId = "";
   double amount;
   List<CartItem> cartItemList = [];
 
@@ -23,27 +28,32 @@ class OrderNotifier extends StateNotifier<Order> {
     state = newCart;
   }
 
+  void loadCart(Order order) {
+    state = order;
+  }
+
   List<CartItem> cartItems() {
     return state.cartItemList;
   }
 
   void addProduct(Product product) {
-    final bool productIsInCart = state.cartItemList.any((cartItem) => cartItem.product.id == product.id);
+    final bool productIsInCart = state.cartItemList.any((cartItem) => cartItem.id == product.id);
 
     if (productIsInCart) {
-      final itemInCart = state.cartItemList.firstWhere((cartItem) => cartItem.product.id == product.id);
-      itemInCart.quantity++;
-      itemInCart.totalPrice += product.price;
+      final itemInCart = state.cartItemList.firstWhere((cartItem) => cartItem.id == product.id);
+      itemInCart.quantity! + 1;
+      itemInCart.totalPrice = itemInCart.totalPrice! + product.price;
       state.amount += product.price;
     } else {
       final newCartItem = CartItem(
         id: product.id,
-        product: product,
+        title: product.title,
         totalPrice: product.price,
+        price: product.price,
         quantity: 1,
       );
       state.cartItemList.add(newCartItem);
-      state.amount += newCartItem.totalPrice;
+      state.amount += newCartItem.totalPrice!;
     }
   }
 

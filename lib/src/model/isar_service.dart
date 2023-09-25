@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'order_model.dart';
 import 'user_model.dart';
 
 class IsarService {
@@ -32,12 +33,24 @@ class IsarService {
     return await isar.writeTxn(() async => await isar.users.where().deleteAll());
   }
 
+  //Order
+  Future<void> saveOrderDB(Order order) async {
+    final isar = await db;
+    await isar.writeTxn(() async => isar.orders.put(order));
+  }
+
+  Future<Order?> getOrderDB() async {
+    final isar = await db;
+    Order? order = await isar.orders.where().findFirst();
+    return order;
+  }
+
   Future<Isar> openDB() async {
     if (Isar.instanceNames.isEmpty) {
       final dir = await getApplicationDocumentsDirectory();
       return await Isar.open(
         directory: dir.path,
-        [UserSchema],
+        [UserSchema, OrderSchema],
         inspector: true,
       );
     }

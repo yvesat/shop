@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shop/src/model/isar_service.dart';
 //import 'package:path_provider/path_provider.dart';
 import 'package:shop/src/model/product_model.dart';
 import 'package:shop/src/model/services/order_service.dart';
@@ -17,14 +18,19 @@ class CartController extends StateNotifier<AsyncValue<void>> {
   CartController() : super(const AsyncValue.data(null));
 
   final Alert alert = Alert();
+  final IsarService isarService = IsarService();
 
   void createCart(WidgetRef ref) {
     ref.read(orderProvider.notifier).createCart();
   }
 
-  void addProductCart(BuildContext context, WidgetRef ref, Product product) {
+  Future<void> addProductCart(BuildContext context, WidgetRef ref, Product product) async {
     try {
       ref.read(orderProvider.notifier).addProduct(product);
+
+      final order = ref.read(orderProvider.notifier).state;
+      await isarService.saveOrderDB(order);
+
       alert.snack(context, AppLocalizations.of(context)!.itemAddedToCart(product.title));
     } catch (e) {
       alert.snack(context, e.toString());
@@ -37,6 +43,8 @@ class CartController extends StateNotifier<AsyncValue<void>> {
 
   Future<void> placeOrder(BuildContext context, WidgetRef ref) async {
     try {
+      state = const AsyncValue.loading();
+
       final orderService = OrderService();
       final order = ref.read(orderProvider.notifier).orderToMap();
 
@@ -49,6 +57,8 @@ class CartController extends StateNotifier<AsyncValue<void>> {
       );
     } catch (e) {
       rethrow;
+    } finally {
+      state = const AsyncValue.data(null);
     }
 
     //Todo: Bloco do PDF a ser corrigido.

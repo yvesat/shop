@@ -28,8 +28,8 @@ class ProductItem extends HookConsumerWidget {
               backgroundColor: Colors.black54,
               trailing: IconButton(
                   padding: EdgeInsets.zero,
-                  onPressed: () {
-                    cartController.addProductCart(context, ref, product);
+                  onPressed: () async {
+                    await cartController.addProductCart(context, ref, product);
                   },
                   icon: FaIcon(FontAwesomeIcons.cartShopping, size: 16, color: Theme.of(context).colorScheme.secondary)),
             ),

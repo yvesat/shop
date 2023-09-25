@@ -1,11 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:shop/src/model/cart_item_model.dart';
 import 'package:shop/src/model/filtered_products_model.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shop/src/model/order_model.dart';
 
 import '../model/custom_exception.dart';
 import '../model/enums/alert_type.dart';
@@ -19,8 +20,9 @@ import 'products_controller.dart';
 class LoginController extends StateNotifier<AsyncValue<void>> {
   LoginController() : super(const AsyncValue.data(null));
 
-  // final UserRepository repositorioUsuario = UserRepository();
+  final Alert alert = Alert();
   final IsarService isarService = IsarService();
+
   Future<local.User?> loadUser() async {
     try {
       state = const AsyncValue.loading();
@@ -33,8 +35,6 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
   }
 
   Future<void> logOff(BuildContext context, WidgetRef ref) async {
-    final Alert alert = Alert();
-
     return alert.dialog(
       context,
       AlertType.warning,
@@ -62,7 +62,7 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
 
       await userController.saveUser(email: email, password: password, userToken: token);
 
-      await loadProductGoHome(context, ref);
+      await loadData(context, ref);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         throw CustomException(AppLocalizations.of(context)!.errorUserNotFound);
@@ -96,7 +96,7 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
 
       await userController.saveUser(email: email, password: password, userToken: token);
 
-      await loadProductGoHome(context, ref);
+      await loadData(context, ref);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw CustomException(AppLocalizations.of(context)!.errorWeakPassword);
@@ -110,13 +110,69 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
-  Future<void> loadProductGoHome(BuildContext context, WidgetRef ref) async {
-    await ref.read(productsControllerProvider.notifier).loadProducts(ref);
+  //Loads all data in the providers before moving to home page
+  Future<void> loadData(BuildContext context, WidgetRef ref) async {
+    try {
+      state = const AsyncValue.loading();
 
-    final originalState = ref.read(productProvider.notifier).productsList();
-    ref.read(filteredProductsProvider.notifier).loadProducts(originalState);
+      //Fetching product data from Firebase
+      await ref.read(productsControllerProvider.notifier).loadProducts(ref);
+      final loadedProducts = ref.read(productProvider.notifier).productsList();
+      //Loading product list to be shown in the home page
+      ref.read(filteredProductsProvider.notifier).loadProducts(loadedProducts);
 
-    context.go('/home');
+      //Loading existing cart from local data base and checking if the products contained
+      //in the cartItemList have been updated in fire base.
+      //If they have been updated or removed, show to the user the list of updated or removed products.
+      final cart = await isarService.getOrderDB();
+      List<CartItem> newCartItemList = [];
+      List<String> removedProducts = [];
+      List<String> updatedProducts = [];
+
+      if (cart != null && cart.cartItemList.isNotEmpty && loadedProducts.isNotEmpty) {
+        for (CartItem cartItem in cart.cartItemList) {
+          final productExists = loadedProducts.any((e) => e.id == cartItem.id);
+
+          if (productExists) {
+            final loadedProduct = loadedProducts.firstWhere((e) => e.id == cartItem.id);
+            if (cartItem.title != loadedProduct.title || cartItem.price != loadedProduct.price) {
+              updatedProducts.add(cartItem.title!);
+
+              cartItem.title = loadedProduct.title;
+              cartItem.price = loadedProduct.price;
+              cartItem.totalPrice = cartItem.quantity! * cartItem.price!;
+
+              newCartItemList.add(cartItem);
+            }
+          } else {
+            removedProducts.add(cartItem.title!);
+          }
+        }
+        cart.cartItemList.clear();
+        cart.cartItemList.addAll(newCartItemList);
+
+        ref.read(orderProvider.notifier).loadCart(cart);
+      }
+
+      if (removedProducts.isNotEmpty || updatedProducts.isNotEmpty) {
+        alert.dialog(
+          context,
+          AlertType.warning,
+          //todo: informar mudanças de cadastro dos produtos ao usuário e redirecionar para home page
+          AppLocalizations.of(context)!.logOutFromAppConfirmation,
+          onPress: () async {
+            Navigator.pop(context);
+            context.go('/home');
+          },
+        );
+      }
+
+      context.go('/home');
+    } catch (e) {
+      rethrow;
+    } finally {
+      state = const AsyncValue.data(null);
+    }
   }
 }
 

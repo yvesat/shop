@@ -1,15 +1,20 @@
-import 'product_model.dart';
+import 'package:isar/isar.dart';
 
+part 'cart_item_model.g.dart';
+
+@embedded
 class CartItem {
-  String id;
-  Product product;
-  double totalPrice;
-  int quantity;
+  String? id;
+  String? title;
+  double? price;
+  double? totalPrice;
+  int? quantity;
 
   CartItem({
-    required this.id,
-    required this.product,
-    required this.totalPrice,
-    required this.quantity,
+    this.id,
+    this.title,
+    this.price,
+    this.totalPrice,
+    this.quantity,
   });
 }
