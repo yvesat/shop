@@ -34,5 +34,8 @@
     "confirmation": "Confirmation",
     "confirm": "CONFIRM",
     "success": "Success",
-    "searchProduct": "Search a product"
+    "searchProduct": "Search a product",
+    "updatedProductsWarning": "Some items that were in your cart have been updated, check the changes before completing your purchase.\n\nUpdated items:\n\n{productList}",
+    "removedProductsWarning": "Some items that were in your cart are no longer available.\n\nUnavailable items:\n\n{productList}",
+    "updatedAndRemovedProductsWarning": "Some items that were in your cart are no longer available or have been updated.\n\nRemoved items:\n\n{removedProductList}\n\nUpdated items:\n\n{updatedProductList}"
 }

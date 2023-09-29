@@ -121,9 +121,9 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
       //Loading product list to be shown in the home page
       ref.read(filteredProductsProvider.notifier).loadProducts(loadedProducts);
 
-      //Loading existing cart from local data base and checking if the products contained
-      //in the cartItemList have been updated in fire base.
-      //If they have been updated or removed, show to the user the list of updated or removed products.
+      //Loading existing cart from local database and checking if the products contained
+      //in the cartItemList have been updated in firebase.
+      //If they have been updated or removed, show the user the list of updated or removed products.
       final cart = await isarService.getOrderDB();
       List<CartItem> newCartItemList = [];
       List<String> removedProducts = [];
@@ -148,18 +148,34 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
             removedProducts.add(cartItem.title!);
           }
         }
-        cart.cartItemList.clear();
+        cart.cartItemList = [];
         cart.cartItemList.addAll(newCartItemList);
 
         ref.read(orderProvider.notifier).loadCart(cart);
       }
 
       if (removedProducts.isNotEmpty || updatedProducts.isNotEmpty) {
+        String updatedOrRemovedProductsMessage = "";
+
+        String formattedRemovedProductsList = "";
+        if (removedProducts.isNotEmpty) formattedRemovedProductsList = removedProducts.join(', ');
+
+        String formattedUpdatedProductsList = "";
+        if (updatedProducts.isNotEmpty) formattedUpdatedProductsList = updatedProducts.join(', ');
+
+        if (removedProducts.isNotEmpty && updatedProducts.isNotEmpty) {
+          updatedOrRemovedProductsMessage = AppLocalizations.of(context)!.updatedAndRemovedProductsWarning(formattedRemovedProductsList, formattedUpdatedProductsList);
+        } else if (removedProducts.isNotEmpty) {
+          updatedOrRemovedProductsMessage = AppLocalizations.of(context)!.removedProductsWarning(formattedRemovedProductsList);
+        } else if (updatedProducts.isNotEmpty) {
+          updatedOrRemovedProductsMessage = AppLocalizations.of(context)!.updatedProductsWarning(formattedUpdatedProductsList);
+        }
+
         alert.dialog(
           context,
           AlertType.warning,
           //todo: informar mudanças de cadastro dos produtos ao usuário e redirecionar para home page
-          AppLocalizations.of(context)!.logOutFromAppConfirmation,
+          updatedOrRemovedProductsMessage,
           onPress: () async {
             Navigator.pop(context);
             context.go('/home');
@@ -167,7 +183,7 @@ class LoginController extends StateNotifier<AsyncValue<void>> {
         );
       }
 
-      context.go('/home');
+      // context.go('/home');
     } catch (e) {
       rethrow;
     } finally {

@@ -34,5 +34,9 @@
     "confirmation": "Confirmação",
     "confirm": "CONFIRMAR",
     "success": "Sucesso",
-    "searchProduct": "Procure um produto"
+    "searchProduct": "Procure um produto",
+    "updatedProductsWarning": "Alguns itens que estavam no seu carrinho foram atualizados. Verifique as alterações antes de concluir sua compra.\n\nItens atualizados:\n\n{productList}",
+    "removedProductsWarning": "Alguns itens que estavam no seu carrinho não estão mais disponíveis.\n\nItens indisponíveis:\n\n{productList}",
+    "updatedAndRemovedProductsWarning": "Alguns itens que estavam no seu carrinho não estão mais disponíveis ou foram atualizados.\n\nItens removidos:\n\n{removedProductList}\n\nItens atualizados:\n\n{updatedProductList}"
+
 }

@@ -26,10 +26,11 @@ class CartController extends StateNotifier<AsyncValue<void>> {
 
   Future<void> addProductCart(BuildContext context, WidgetRef ref, Product product) async {
     try {
-      ref.read(orderProvider.notifier).addProduct(product);
+      final order = ref.read(orderProvider.notifier);
 
-      final order = ref.read(orderProvider.notifier).state;
-      await isarService.saveOrderDB(order);
+      order.addProduct(product);
+
+      await isarService.saveOrderDB(order.state);
 
       alert.snack(context, AppLocalizations.of(context)!.itemAddedToCart(product.title));
     } catch (e) {
